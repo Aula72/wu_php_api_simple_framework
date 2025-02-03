@@ -1,0 +1,15 @@
+{
+    "name": "aula/yout_package_name",
+    "description": "Your description",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "your_name",
+            "email": "your_email@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
