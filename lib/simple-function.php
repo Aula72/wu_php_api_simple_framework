@@ -1,27 +1,42 @@
 <?php 
-
+echo "Hello World";
 function method_caller(){
+	global $allow_urls;
 	$url = explode("/", $_SERVER['REQUEST_URI']);
-	if(stripos($url[1], "?")){
+	// die(json_encode($url));
+	if($url[1]==""){
+		call_user_func('index');
+		exit;
+	}
+	$new_url = explode("?", $url[1]);
+	if(in_array($url[0], $allow_urls) || in_array($new_url[0], $allow_urls)){
+		if(stripos($url[1], "?")){
 			$new_url = explode("?", $url[1]);
 			$query1 = explode("&", $_SERVER['QUERY_STRING']);
 			foreach($query1 as $q){
 				$qi = explode("=", $q);
 				$_GET[$qi[0]] = $qi[1];
 			}
-			call_user_func($new_url[0]);
-			exit;
-	}else{
-		if(function_exists($url[1])){
-		
-		call_user_func($url[1]);
-		exit;
+			
+				call_user_func($new_url[0]);
+				exit;
+			
+			
 		}else{
-			http_response_code(404);
-			echo json_encode(["error"=>INVALID_OP]);
-			exit();
-		}	
+			if(function_exists($url[1])){
+			
+			call_user_func($url[1]);
+			exit;}
+
+		}
+	
+	}else{
+		die(json_encode(['error'=>'Url not allowed...']));
 	}
+}
+function add_url($url){
+	global $allow_urls;
+	array_push($allow_urls, $url);
 }
 function allowed_methods($meth=['GET']){
 	if(!in_array($_SERVER['REQUEST_METHOD'], $meth)){
@@ -76,12 +91,12 @@ function queryHandler($type='get', $table='',$data=[],$conditions=[]){
 	$statement = "";
 	switch($type){
 		case 'get':
-		$statement.="SELECT * FROM $table";
-		if(count($conditions)>0){
-			$statement .= $cond_;
-		}		
-		$message = "Select was successful";
-		break;
+			$statement.="SELECT * FROM $table";
+			if(count($conditions)>0){
+				$statement .= $cond_;
+			}		
+			$message = "Select was successful";
+			break;
 		case 'post':
 		$statement .="INSERT INTO $table SET ";
 		if(!empty($data)){
@@ -97,7 +112,7 @@ function queryHandler($type='get', $table='',$data=[],$conditions=[]){
 		}
 		$message = "Insert was successful";
 		break;
-		case 'update':
+		case 'put':
 		$statement .="UPDATE $table SET ";
 		if(!empty($data)){
 			foreach ($data as $key => $value) {
@@ -137,4 +152,11 @@ function queryHandler($type='get', $table='',$data=[],$conditions=[]){
 		"message"=>$message
 	];
 }
+
+function generateRandomWord($length = 6) {
+    $letters = 'abcdefghijklmnopqrstuvwxyz';
+    return substr(str_shuffle(str_repeat($letters, $length)), 0, $length);
+}
+
+// echo generateRandomWord(8);
 

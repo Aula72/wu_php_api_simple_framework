@@ -1,0 +1,26 @@
+
+<Directory "lib">
+    Order Allow,Deny
+    Deny from all
+</Directory>
+
+<Directory "config">
+    Order Allow,Deny
+    Deny from all
+</Directory>
+
+<Files "*.php">
+    Deny from all
+</Files>
+
+<FilesMatch "(v1\.php|secret\.txt)">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L,QSA]
+
+
+

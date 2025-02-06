@@ -1,6 +1,7 @@
 <?php 
 include_once "config.php";
 
+use Phpfastcache\Helper\Psr16Adapter;
 
 try {
   $conn = new PDO("mysql:host=".$dbhost.";dbname=".$dbname, $dbuser, $dbpwd);
@@ -10,3 +11,11 @@ try {
 } catch(PDOException $e) {
   die(json_encode(["error"=>"Connection failed: " . $e->getMessage(), "host"=>$dbhost]));
 }
+
+$cache = new Psr16Adapter('Files');
+
+//memcached
+
+// $memcached = new \Memcached();
+// $memcached->addServer("127.0.0.1", 11211);
+

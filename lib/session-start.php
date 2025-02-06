@@ -6,8 +6,12 @@ if(!isset($_SESSION['token'])){
         mkdir(SESS_PATH);
     }
     session_save_path(SESS_PATH);
-    session_start();
-
+    session_start([
+        'cookie_httponly' => true,  // Prevent JavaScript access to cookies
+        'cookie_secure' => true,     // Use HTTPS-only cookies
+        'cookie_samesite' => 'Strict' // Prevent CSRF attacks
+    ]);
+    session_regenerate_id(true);
     // echo ini_get("session.save_path");
 
 
