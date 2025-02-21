@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 For example if we a table in our table called products, we can make its endpoints 
 as in that following example
 */
-require_once "v1.php";
+// require_once "v1.php";
+require_once "v3.php";
 //call function by given uri...
 method_caller();

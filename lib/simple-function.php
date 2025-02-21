@@ -1,5 +1,4 @@
 <?php 
-echo "Hello World";
 function method_caller(){
 	global $allow_urls;
 	$url = explode("/", $_SERVER['REQUEST_URI']);
@@ -160,3 +159,153 @@ function generateRandomWord($length = 6) {
 
 // echo generateRandomWord(8);
 
+class HandleQuery{
+	protected $conditions = "";
+	protected $table_name = "";
+	protected $stmt = "";
+	protected $parameters = [];
+	protected $limit = 100;
+	protected $order_by = " ASC";
+	protected $per_page = 10;
+	protected $current_page = 1;
+	public function __construct(){
+		// query($this->stmt, $this->parameters);
+	}
+	public function table($name){
+		$this->table_name = $name;
+		return $this;
+	}
+	public function select($arr=[]){
+		if(count($arr)==0){
+			$s = "*";
+		}else{
+			for($i=0; $i<=count($arr); $i++){
+				$s .= $arr[$i].",";
+			}
+			$s = rtrim($s, ",");
+		}
+		$this->stmt = "SELECT $s FROM $this->table_name";
+		// if(count($this->conditions>0)){
+		// 	$this->stmt = "SELECT $s FROM $this->table_name WHERE $this->conditions;";
+		// }
+		
+		return $this;
+	}
+	public function insert($data = []){
+		$params = [];
+		if(!empty($data)){
+			foreach ($data as $key => $value) {
+			    if (is_string($key)) {
+			    	$values .= "$key=:$key,";
+					$params["$key"] = $value;
+			    }
+			}
+			$newString = substr($values, 0, -1);
+			$values = $newString;
+		}else{
+			die(json_encode(["error"=>"Specify columns"]));
+		}
+		$this->parameters = $params;
+		$this->stmt = "INSERT INTO $this->table_name SET $values;";
+		return $this;
+	}
+	public function update($data=[]){
+		$pa = [];
+		if(!empty($data)){
+			foreach ($data as $key => $value) {
+			    if (is_string($key)) {
+			    	$values .= "$key=:$key,";
+					$pa[":$key"]=$value;
+					// array_push($this->parameters, $pa);
+			    }
+			}
+			$newString = substr($values, 0, -1);
+			$values = $newString;
+		}else{
+			die(json_encode(["error"=>"Specify columns"]));
+		}
+		$this->parameters = $pa;
+		// die(var_dump($this->parameters));
+
+		$this->stmt .= "UPDATE $this->table_name SET $values $this->conditions";
+		// var_dump($this);
+		return $this;
+	}
+	public function delete($arr = []){
+		
+		$this->stmt = "DELETE FROM $this->table_name ";
+		// $this->where($arr);
+		// die(var_dump($this));
+		return $this;
+	}
+	public function getOne(){
+		return $this->result->fetch(PDO::FETCH_ASSOC);
+	}
+	public function get(){
+		return $this->result->fetchAll(PDO::FETCH_ASSOC);
+	}
+	public function lastInsertedId(){
+		global $conn;
+		return $conn->lastInsertID();
+	}
+
+	public function first(){}
+
+	public function where($arr=[]){
+		$params = [];
+		$cond_ = " ";
+		if(count($arr)>0){
+			foreach ($arr as $key => $value) {
+				if (is_string($key)) {
+					$cond_ .= " $key=:$key AND ";
+					$params[":$key"]=$value;
+					// array_push($this->parameters, [$params[":$key"]=>$value]);
+					$this->parameters[":$key"] = $value;
+					// $this->parameters, $params[":$key"];
+					// array_push($this->parameters, $pa);
+				} else {
+					$cond_ .= " $value ";
+					$this->parameters[] = $cond_;
+				}
+			}
+		}
+		// array_push($this->parameters, $params);
+		$cond_ = rtrim($cond_, ",");
+		$cond_ = rtrim($cond_, " AND ");
+		// $this->parameters = $params;
+		$this->conditions .= " WHERE ".$cond_;
+		$this->stmt .= $this->conditions;
+		return $this;
+	}
+
+	public function paginate($per_page=20, $start_at = 0){
+		$num_page = query($this->stmt);
+		$this->stmt .= " LIMIT $this->per_page OFFSET $this->offset";
+	}
+
+	function create_table($name){
+		return $this;
+	}
+
+	function execute(){
+		// if(!empty($this->parameter)){
+		// 	$this->result = query($this->stmt, $this->parameters);
+		// }else{
+		// 	$this->result = query($this->stmt);
+		// }	
+		// var_dump($this);
+		// die(json_encode($this->parameters));
+		// die(var_dump($this->stmt));
+		try{
+			$this->result =query($this->stmt, $this->parameters);
+			return $this;
+		}catch(PDOException $m){
+			echo json_encode([
+				"error"=>$m->getMessage(),
+				// 'query'=>$this->stmt
+			]);
+			exit;
+		}
+			
+	}
+}
