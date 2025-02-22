@@ -1,30 +1,105 @@
-This is a simple restful API framework written in PHP 
+# Quick PHP RESTful Framework
 
-<h1>How to use the framework</h1>
+## Overview
+This is a lightweight PHP RESTful framework designed to simplify API development. It follows MVC principles, provides easy routing, and supports middleware for enhanced security and flexibility.
 
-Clone the framework
+## Features
+- Simple and clean routing
+- JSON response handling
+- Error handling and logging
+- Database integration using PDO
+- Authentication support (session-based)
+- CORS support
 
-Create you database with tables example of database table
+## Installation
 
-<p> The table `products` which has columns such as</p>
+### Using Composer
+```sh
+composer require your-namespace/your-framework
+```
 
-  `id` <br>
-  `product_name` <br>
-  `product_price` <br>
-  `product_quantity` <br>
-  `created_at` <br>
+### Manual Installation
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/Aula72/wu_php_api_simple_framework.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd /path/to/files/clone
+   ```
+3. Install dependencies:
+   ```sh
+   composer install
+   ```
+
+## Usage
+
+### Setting Up a New Route
+Define routes in `routes.php`:
+```php
+$router->get('/users', 'UserController@index');
+$router->post('/users', 'UserController@store');
+```
+
+### Creating a Controller
+```php
+class UserController {
+    public function index() {
+        return response()->json(['users' => ['John', 'Doe']]);
+    }
+
+    public function store() {
+        return response()->json(['message' => 'User created successfully'], 201);
+    }
+}
+```
+## Configuration
+Rename `.env.example` to `.env` for database and environment settings. Edit the `.env` file for configurations including `DBNAME` and `DBPASSW`.
+
+Create tables in your database.
+
+### Running the Application
+Start a development server:
+```sh
+php -S localhost:8000 
+```
 
 
 
-The possible endpoints on this resources are:
+## Create your quick CRUD
 
-`GET` `/products` <br>
-`GET` `/products?id=34` <br>
-`POST` `/products` <br>
-`PUT`  `/products?id=34`<br>
-`DELETE` `/products?id=34`<br>
+Visit `http://localhost:8000/auto-crud.php`
 
-<h3>Steps to using the framework</h3>
-Clone the project from <a href="https://github.com/Aula72/wu_php_api_simple_framework">Github</a> to any directory on your machine or server, make sure that at least `PHP 8.1` is installed on machine. 
+A file name `v1.php` will be created containing all the necessary CRUD operations for your table. 
 
-<p>Navigate to the location in terminal or CMD on Windows run the API by running the command `php -S 0.0.0.0:8000`, open you favour restful API client and enjoy.</p>
+Edit the `index.php` add `include_once "v1.php"` just be the line that has `method_caller()`. 
+
+Now you can do CRUD on any table in your database by using the following endpoints
+
+-- `GET /<table-name>`
+-- `GET /<table-name>?<column-name>=67`
+-- `GET /<table-name>?<column-name1>=67&&<column-name2>=90`
+-- `POST /<table-name>`
+-- `PUT /<table-name>?<column-name>=67`
+-- `DELETE /<table-name>?<column-name>=67`
+
+
+
+
+
+
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature-name`)
+3. Commit your changes (`git commit -m 'Add feature'`)
+4. Push to the branch (`git push origin feature-name`)
+5. Open a Pull Request
+
+## License
+This project is licensed under the MIT License.
+
+## Contact
+For support, open an issue or contact [your-email@example.com](mailto:your-email@example.com).
+
+
