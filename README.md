@@ -34,25 +34,8 @@ composer require your-namespace/your-framework
 
 ## Usage
 
-### Setting Up a New Route
-Define routes in `routes.php`:
-```php
-$router->get('/users', 'UserController@index');
-$router->post('/users', 'UserController@store');
-```
 
-### Creating a Controller
-```php
-class UserController {
-    public function index() {
-        return response()->json(['users' => ['John', 'Doe']]);
-    }
 
-    public function store() {
-        return response()->json(['message' => 'User created successfully'], 201);
-    }
-}
-```
 ## Configuration
 Rename `.env.example` to `.env` for database and environment settings. Edit the `.env` file for configurations including `DBNAME` and `DBPASSW`.
 
@@ -76,12 +59,12 @@ Edit the `index.php` add `include_once "v1.php"` just be the line that has `meth
 
 Now you can do CRUD on any table in your database by using the following endpoints
 
--- `GET /<table-name>`
--- `GET /<table-name>?<column-name>=67`
--- `GET /<table-name>?<column-name1>=67&&<column-name2>=90`
--- `POST /<table-name>`
--- `PUT /<table-name>?<column-name>=67`
--- `DELETE /<table-name>?<column-name>=67`
+- `GET /<table-name>`
+- `GET /<table-name>?<column-name>=67`
+- `GET /<table-name>?<column-name1>=67&&<column-name2>=90`
+- `POST /<table-name>`
+- `PUT /<table-name>?<column-name>=67`
+- `DELETE /<table-name>?<column-name>=67`
 
 
 
@@ -100,6 +83,6 @@ Now you can do CRUD on any table in your database by using the following endpoin
 This project is licensed under the MIT License.
 
 ## Contact
-For support, open an issue or contact [your-email@example.com](mailto:your-email@example.com).
+For support, open an issue or contact [moncytod@gmail.com](mailto:moncytod@gmail.com).
 
 
