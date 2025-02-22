@@ -1,12 +1,12 @@
 {
-    "name": "Aula72/QuickAPI",
+    "name": "Aula72/quick_restful_api_framework",
     "description": "Create any CRUD in seconds",
     "type": "project",
     "license": "MIT",
     "authors": [
         {
             "name": "Simon Aula",
-            "email": "simaulat@gmail.com"
+            "email": "moncytod@gmail.com"
         }
     ],
     "require": {
