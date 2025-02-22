@@ -25,7 +25,7 @@ function create_function(){
 	";
 	$f=0;
 	// START:
-	$target_file = "v3.php";
+	$target_file = "v1.php";
 	if(isset($_GET['file_name'])){
 		$target_file = $_GET['file_name'].".php";
 	}
