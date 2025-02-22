@@ -35,6 +35,6 @@ For example if we a table in our table called products, we can make its endpoint
 as in that following example
 */
 // require_once "v1.php";
-require_once "v3.php";
+require_once "v6.php";
 //call function by given uri...
 method_caller();

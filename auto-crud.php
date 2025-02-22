@@ -1,47 +1,53 @@
 <?php 
+
+require_once __DIR__ . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 include_once "config/config.php";
 include_once "config/db.php";
-// @add_url('create_function');
+include_once "lib/simple-function.php";
+
 function create_function(){
-	$arr = ["admin","asset","game",	"game_asset","game_grades",	"game_level","learner",	"learner_history",	"level_question_score", 
-	"level_questions",
-	"permission",
-	"question_answers",
-	"school",
-	"school_logs",
-	"staff",
-	"staff_history",
-	"system_activation",
-	"user_logs",
-	"user_roles",
-	"user_tokens",
-	"user_types",
-	"users",
+	global $conn, $dbname;
+
+	$tables = $conn->prepare("SELECT TABLE_NAME 
+		FROM INFORMATION_SCHEMA.TABLES 
+		WHERE TABLE_SCHEMA = '$dbname';");
+	$tables->execute();
+	$arr = [];
+	foreach($tables->fetchAll(PDO::FETCH_ASSOC) as $f){
+		$arr[] = $f["TABLE_NAME"];
+	}
 	
-	];
 	$text = "<?php 
 	\$queryMake = new HandleQuery();
 	";
 	$f=0;
 	// START:
+	$target_file = "v3.php";
+	if(isset($_GET['file_name'])){
+		$target_file = $_GET['file_name'].".php";
+	}
 	if(isset($_GET['name'])){
 		$tab = $_GET['name'];
-		$text .= modal($tab);
+		$text = modal($tab);
+		$w = "a";
 	}else{
 		for($i=0;$i<count($arr); $i++){
 			$tab = $arr[$i];
 			$text .= modal($tab);
 		}
+		$w = "w";
 	}
 	
 	
 	echo $text;
-	$f = fopen("v3.php", "w");
+	
+	
+	$f = fopen($target_file, $w);
 	fwrite($f, $text);
 	fclose($f);
-	// if($f==0){
-	// 	goto START;
-	// }
 }
 
 function modal($tab){
