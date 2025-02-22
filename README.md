@@ -25,4 +25,6 @@ The possible endpoints on this resources are:
 `DELETE` `/products?id=34`<br>
 
 <h3>Steps to using the framework</h3>
-<h4></h4>
+Clone the project from <a href="https://github.com/Aula72/wu_php_api_simple_framework">Github</a> to any directory on your machine or server, make sure that at least `PHP 8.1` is installed on machine. 
+
+<p>Navigate to the location in terminal or CMD on Windows run the API by running the command `php -S 0.0.0.0:8000`, open you favour restful API client and enjoy.</p>
