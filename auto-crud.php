@@ -27,10 +27,10 @@ function create_function(){
 	// START:
 	$target_file = "v1.php";
 	if(isset($_GET['file_name'])){
-		$target_file = $_GET['file_name'].".php";
+		$target_file = replace_special_chars($_GET['file_name']).".php";
 	}
 	if(isset($_GET['name'])){
-		$tab = $_GET['name'];
+		$tab = replace_special_chars($_GET['name']);
 		$text = modal($tab);
 		$w = "a";
 	}else{

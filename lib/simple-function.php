@@ -157,6 +157,48 @@ function generateRandomWord($length = 6) {
     return substr(str_shuffle(str_repeat($letters, $length)), 0, $length);
 }
 
+function replace_string($string){
+	$pattern = "/[^a-zA-Z0-9]/";
+	$replacement = "";
+	return preg_replace($pattern, $replacement, $string);
+}
+
+function replace_special_chars($string){
+	$arr = [
+		" "=>"_",
+		"!"=>"_",
+		"@"=>"_",
+		"#"=>"_",
+		"$"=>"_",
+		"%"=>"_",
+		"^"=>"_",
+		"&"=>"_",
+		"*"=>"_",
+		"("=>"_",
+		")"=>"_",
+		"["=>"_",
+		"]"=>"_",
+		"{"=>"_",
+		"}"=>"_",
+		"="=>"_",
+		"+"=>"_",
+		"?"=>"_",
+		"<"=>"_",
+		">"=>"_",
+		"/"=>"_",
+		"\""=>"_",
+		"'"=>"_",
+		";"=>"_",
+		":"=>"_",
+		"~"=>"_",
+		"-"=>"_",
+		"."=>"_",
+		"`"=>"_"
+	];
+	$newString = str_replace(array_keys($arr), array_values($arr), $string);
+	return $newString;
+}
+
 // echo generateRandomWord(8);
 
 class HandleQuery{
