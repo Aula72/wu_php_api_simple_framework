@@ -4,8 +4,23 @@ meta {
   seq: 3
 }
 
-get {
-  url: http://127.0.0.1:8000/api/v1/2002/user
-  body: none
+post {
+  url: http://127.0.0.1:8000/api/v1/user_farms
+  body: json
   auth: none
+}
+
+body:json {
+  {
+        "product_name": 34,
+        "user_code": "KEB410018",
+        "farm_name": "organic week ",
+        "location_name": "kampala",
+        "acrage": "6 to 10",
+        "quantity": "0",
+        "image": "uploads_images/65f0_organic week .png",
+        "farm_latd": "0.3289792",
+        "farm_longd": "32.6076164",
+        "added_by": "KEB41218"
+      }
 }

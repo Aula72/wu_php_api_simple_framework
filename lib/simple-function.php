@@ -161,20 +161,24 @@ class HandleQuery{
 	}
 	public function insert($data = []){
 		$params_ = [];
+		$r = "";
 		if(!empty($data)){
 			foreach ($data as $key => $value) {
 			    if (is_string($key)) {
-			    	$this->values = $this->values."$key=:$key,";
-					$params_[":$key"] = $this->value;
+					$r .= "$key=:$key,";
+			    	// $this->values .="$r=:$r,";
+					$this->parameters[":$key"] = $value;
 			    }
 			}
 			$this->values = rtrim(",", $this->values);
-			
+			// die($r);
 		}else{
 			die(json_encode(["error"=>"Specify columns"]));
 		}
-		$this->parameters = $params_;
+		// $this->parameters = $params_;
+		$this->values = rtrim($r, ",");
 		// die(json_encode($this->parameters));
+		// die(json_encode($this->values));
 		$this->stmt .= "INSERT INTO $this->table_name SET $this->values;";
 		// die($values);
 		return $this;
@@ -258,10 +262,23 @@ class HandleQuery{
 	}
 
 	function execute(){
-		die($this->stmt);
-		die(json_encode($this->parameters));
+		// die(json_encode(["stmt"=>$this->stmt, "count1"=>substr_count($this->stmt, "="), "params"=>$this->parameters, "count2"=>count($this->parameters), "error"=>""]));
 		try{
+			$d = "INSERT INTO user_farms SET product_name=:product_name,user_code=:user_code,farm_name=:farm_name,location_name=:location_name,acrage=:acrage,quantity=:quantity,image=:image,farm_latd=:farm_latd,farm_longd=:farm_longd,added_by=:added_by;";
+			$opd = [
+				":product_name"=> 34,
+				":user_code"=>"KEB410018",
+				":farm_name"=>"organic week ",
+				":location_name"=>"kampala",
+				":acrage"=>"6 to 10",
+				":quantity"=>"0",
+				":image"=>"uploads_images/65f0_organic week .png",
+				":farm_latd"=>"0.3289792",
+				":farm_longd"=>"32.6076164",
+				":added_by"=>"KEB41218"
+			];
 			$this->result =query($this->stmt, $this->parameters);
+			// $this->result = query($d, $opd);
 			return $this;
 		}catch(PDOException $m){
 			echo json_encode([

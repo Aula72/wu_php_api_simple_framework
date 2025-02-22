@@ -59,11 +59,12 @@ function create_function(){
 
 function modal($tab){
 	$t1 = create_plural_or_singular($tab);
+	$t_name = $_ENV['TABLE_NAME_PREFIX'].$tab.$_ENV['TABLE_NAME_SUFFIX'];
 	return "
 @add_url('$tab');
 function $tab(){
 	global \$response, \$conn, \$data, \$request_method, \$cache, \$message, \$queryMake; 
-	\$table = '$tab'; 
+	\$table = '$t_name'; 
 	\$msg = '$t1';
 	switch(\$request_method){
 		case 'GET':
