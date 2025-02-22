@@ -16,8 +16,13 @@ include_once "lib/simple-function.php";
 
 include_once "lib/baby-security.php";
 include_once "lib/custom-security.php";
+
+include_once "messages.php";
+
 $data = json_decode(file_get_contents("php://input"), true);
 $response = [];
+$response['debug'] = boolval($_ENV['DEBUG']);
+$response['app_name'] = $_ENV['APP_NAME'];
 $request_method = $_SERVER['REQUEST_METHOD'];
 $allow_urls = [];
 
@@ -35,6 +40,6 @@ For example if we a table in our table called products, we can make its endpoint
 as in that following example
 */
 // require_once "v1.php";
-require_once "v6.php";
+require_once "v1.php";
 //call function by given uri...
 method_caller();

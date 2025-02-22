@@ -1,4 +1,4 @@
-This is a simple API framework written in PHP 
+This is a simple restful API framework written in PHP 
 
 <h1>How to use the framework</h1>
 
@@ -23,3 +23,6 @@ The possible endpoints on this resources are:
 `POST` `/products` <br>
 `PUT`  `/products?id=34`<br>
 `DELETE` `/products?id=34`<br>
+
+<h3>Steps to using the framework</h3>
+<h4></h4>

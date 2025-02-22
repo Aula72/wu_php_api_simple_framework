@@ -1,12 +1,17 @@
 <?php 
 function method_caller(){
 	global $allow_urls;
+	if($_ENV['URI_PREFIX']!=""){
+		$pre_url = str_replace("/".$_ENV['URI_PREFIX'], "", $_SERVER['REQUEST_URI']);
+		$_SERVER['REQUEST_URI'] = $pre_url;	
+	}
+	
 	$url = explode("/", $_SERVER['REQUEST_URI']);
-	// die(json_encode($url));
 	if($url[1]==""){
 		call_user_func('index');
 		exit;
 	}
+	
 	$new_url = explode("?", $url[1]);
 	if(in_array($url[0], $allow_urls) || in_array($new_url[0], $allow_urls)){
 		if(stripos($url[1], "?")){
@@ -24,13 +29,14 @@ function method_caller(){
 		}else{
 			if(function_exists($url[1])){
 			
-			call_user_func($url[1]);
-			exit;}
+				call_user_func($url[1]);
+				exit;
+			}
 
 		}
 	
 	}else{
-		die(json_encode(['error'=>'Url not allowed...']));
+		die(json_encode(['error'=>'Url not allowed now...']));
 	}
 }
 function add_url($url){
@@ -52,105 +58,6 @@ function query($stmt, $param=[]){
 	return $p;
 }
 
-function queryHandler($type='get', $table='',$data=[],$conditions=[]){
-	global $conn;
-	$return = [];
-	if($table==''){
-		die(json_encode(["error"=>"Table not provided"]));
-	}
-	
-	$u = "SHOW COLUMNS FROM $table";
-	$su = $conn->prepare($u);
-	$columns =[];
-	foreach($su->fetchAll(PDO::FETCH_ASSOC) as $col){
-		array_push($columns,$col);
-	}
-	
-	$params = [];
-	$cond_ = " WHERE ";
-	if(count($conditions)>0){
-		foreach ($conditions as $key => $value) {
-		    if (is_string($key)) {
-		        $cond_ .= " $key=:$key";
-		        array_push($params, [":$key"=>$value]);
-		    } else {
-		        $cond_ .= " $value ";
-		    }
-		}
-	}
-
-	if(!empty($data)){
-		foreach ($data as $key => $value) {
-		    if (is_string($key)) {
-		        array_push($params, [":$key"=>$value]);
-		    }
-		}
-	}
-	
-	$statement = "";
-	switch($type){
-		case 'get':
-			$statement.="SELECT * FROM $table";
-			if(count($conditions)>0){
-				$statement .= $cond_;
-			}		
-			$message = "Select was successful";
-			break;
-		case 'post':
-		$statement .="INSERT INTO $table SET ";
-		if(!empty($data)){
-			foreach ($data as $key => $value) {
-			    if (is_string($key)) {
-			    	$statement .= "$key=:$key,";
-			    }
-			}
-			$newString = substr($statement, 0, -1);
-			$statement = $newString;
-		}else{
-			die(json_encode(["error"=>"Specify columns"]));
-		}
-		$message = "Insert was successful";
-		break;
-		case 'put':
-		$statement .="UPDATE $table SET ";
-		if(!empty($data)){
-			foreach ($data as $key => $value) {
-			    if (is_string($key)) {
-			    	$statement .= "$key=:$key,";
-			    }
-			}
-			$newString = substr($statement, 0, -1);
-			$statement = $newString;
-
-		}else{
-			die(json_encode(["error"=>"Specify columns"]));
-		}
-		if(count($conditions)>0){
-			$statement .= $cond_;
-		}
-		$message = "Update was successful";
-		break;
-		case 'delete':
-		$statement .= "DELETE FROM $table ";
-		if(count($conditions)>0){
-			$statement .= $cond_;
-		}
-		$message = "Delete was successful";
-		break;
-		default:
-		die(json_encode(["error"=>'An error occured']));
-	}
-	
-	$par1 = array_merge(...$params);
-	
-	$que = query($statement, $par1);
-
-	return [
-		"result"=>$que->fetchAll(PDO::FETCH_ASSOC), 
-		"lastID"=>$conn->lastInsertID(), 
-		"message"=>$message
-	];
-}
 
 function generateRandomWord($length = 6) {
     $letters = 'abcdefghijklmnopqrstuvwxyz';
@@ -163,7 +70,7 @@ function replace_string($string){
 	return preg_replace($pattern, $replacement, $string);
 }
 
-function replace_special_chars($string){
+function replace_special_chars($string, $r="_"){
 	$arr = [
 		" "=>"_",
 		"!"=>"_",
@@ -199,6 +106,24 @@ function replace_special_chars($string){
 	return $newString;
 }
 
+function create_plural_or_singular($t){
+	if(substr($t, -3) == "ies"){
+		$t = rtrim($t,"ies");
+		$t = $t."y";
+		// die($t);
+	}
+
+	if(substr($t, -1) == "s"){
+		$t = rtrim($t, "s");
+		// die($t);
+	}
+
+	$t = str_replace("_", " ", $t);
+	// echo $t;
+	$t = ucfirst($t);
+
+	return $t;
+}
 // echo generateRandomWord(8);
 
 class HandleQuery{
@@ -210,6 +135,7 @@ class HandleQuery{
 	protected $order_by = " ASC";
 	protected $per_page = 10;
 	protected $current_page = 1;
+	protected $values = '';
 	public function __construct(){
 		// query($this->stmt, $this->parameters);
 	}
@@ -234,21 +160,23 @@ class HandleQuery{
 		return $this;
 	}
 	public function insert($data = []){
-		$params = [];
+		$params_ = [];
 		if(!empty($data)){
 			foreach ($data as $key => $value) {
 			    if (is_string($key)) {
-			    	$values .= "$key=:$key,";
-					$params["$key"] = $value;
+			    	$this->values = $this->values."$key=:$key,";
+					$params_[":$key"] = $this->value;
 			    }
 			}
-			$newString = substr($values, 0, -1);
-			$values = $newString;
+			$this->values = rtrim(",", $this->values);
+			
 		}else{
 			die(json_encode(["error"=>"Specify columns"]));
 		}
-		$this->parameters = $params;
-		$this->stmt = "INSERT INTO $this->table_name SET $values;";
+		$this->parameters = $params_;
+		// die(json_encode($this->parameters));
+		$this->stmt .= "INSERT INTO $this->table_name SET $this->values;";
+		// die($values);
 		return $this;
 	}
 	public function update($data=[]){
@@ -330,21 +258,14 @@ class HandleQuery{
 	}
 
 	function execute(){
-		// if(!empty($this->parameter)){
-		// 	$this->result = query($this->stmt, $this->parameters);
-		// }else{
-		// 	$this->result = query($this->stmt);
-		// }	
-		// var_dump($this);
-		// die(json_encode($this->parameters));
-		// die(var_dump($this->stmt));
+		die($this->stmt);
+		die(json_encode($this->parameters));
 		try{
 			$this->result =query($this->stmt, $this->parameters);
 			return $this;
 		}catch(PDOException $m){
 			echo json_encode([
 				"error"=>$m->getMessage(),
-				// 'query'=>$this->stmt
 			]);
 			exit;
 		}

@@ -35,14 +35,21 @@ function create_function(){
 		$w = "a";
 	}else{
 		for($i=0;$i<count($arr); $i++){
-			$tab = $arr[$i];
-			$text .= modal($tab);
+			if(!function_exists($arr[$i])){
+				$tab = $arr[$i];
+				$text .= modal($tab);
+				$w = "w";
+			}else{
+				$text = "";
+				$w = "a";
+			}
+			
 		}
-		$w = "w";
+		
 	}
 	
-	
-	echo $text;
+	header("content-type: text/html");
+	echo "<pre>\<?\php".$text."</pre>";
 	
 	
 	$f = fopen($target_file, $w);
@@ -51,43 +58,74 @@ function create_function(){
 }
 
 function modal($tab){
+	$t1 = create_plural_or_singular($tab);
 	return "
 @add_url('$tab');
 function $tab(){
-	global \$response, \$conn, \$data, \$request_method, \$queryMake; 
+	global \$response, \$conn, \$data, \$request_method, \$cache, \$message, \$queryMake; 
 	\$table = '$tab'; 
-
+	\$msg = '$t1';
 	switch(\$request_method){
 		case 'GET':
 			if(isset(\$_GET) && count(\$_GET)>0){
-				\$response['data'] = \$queryMake->table(\$table)->select()->where(\$_GET)->execute()->get();
+				\$get = [];
+				foreach(\$_GET as \$g){
+					\$get[] = \$g;
+				}
+				\$check_cache = \$cache->get(\$table.\$get[0]);
+				if(\$check_cache){
+					\$response['data'] = \$check_cache;
+
+				}else{
+					\$response['data'] = \$queryMake->table(\$table)->select()->where(\$_GET)->execute()->get();
+					if(count(\$response['data'])>0){
+						
+						\$response['message'] = \$msg.\$message['found'];
+					}else{
+						\$response['message'] = \$msg.\$message['not_found'];
+					}
+					\$cache->set(\$table.\$get[0], \$response['data'], \$_ENV['CACHE_DURATION']);
+				}
+				
+				
 			}else{
-				\$response['data'] = \$queryMake->table(\$table)->select()->execute()->get();
+				\$check_cache = \$cache->get(\$table);
+				if(\$check_cache){
+					\$response['data'] = \$check_cache;
+				}else{
+					\$response['data'] = \$queryMake->table(\$table)->select()->execute()->get();
+					\$cache->set(\$table, \$response['data'], \$_ENV['CACHE_DURATION']);
+				}
+				\$response['message'] = \$msg.\$message['found'];
 			}
 		break;
 
 		case 'POST':
 			\$lastId = \$queryMake->table(\$table)->insert(\$data)->execute()->lastInsertedId();
 			\$response['data'] = \$queryMake->table(\$table)->select()->where(['id'=>\$lastId])->execute()->getOne();
+			\$response['message'] = \$msg.\$message['created'];
 			// queryHandler(type:'post', table:\$table, data:\$data);
 		break;
 
 		case 'PUT':
 			if(isset(\$_GET)){
 				\$d = \$queryMake->table(\$table)->update(\$data)->where(\$_GET)->execute();
-				\$response['message'] = 'School information was updated successfully';
+				//\$response['message'] = 'School information was updated successfully';
+				\$response['message'] = \$msg.\$message['updated'];
 			}else{
-				\$response['message'] = 'School ID must be provided';
+				//\$response['message'] = 'School ID must be provided';
+				\$response['message'] = \$msg.\$message['not_found'];
 			}
 		break;
 
 		case 'DELETE':
 			\$queryMake->table(\$table)->delete()->where(\$_GET)->execute();
-			\$response['message'] = 'School was removed successfully';
+			//\$response['message'] = 'School was removed successfully';
+			\$response['message'] = \$msg.\$message['deleted'];
 		break;
 
 		default:
-
+			\$respons['error'] = \$message['wrong_method'];
 		break;
 	}
 	echo json_encode(\$response);

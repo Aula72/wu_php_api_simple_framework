@@ -19,3 +19,6 @@ $cache = new Psr16Adapter('Files');
 // $memcached = new \Memcached();
 // $memcached->addServer("127.0.0.1", 11211);
 
+// echo json_encode($cache->get("products"));
+// exit;
+
