@@ -1,3 +1,5 @@
 ./vendor/
 .env
 .htaccess
+v1.php
+composer.lock

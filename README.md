@@ -23,6 +23,8 @@ composer require your-namespace/your-framework
    ```sh
    git clone https://github.com/Aula72/wu_php_api_simple_framework.git
    ```
+   or 
+   `composer create-project aula72/quick_restful_api_framework`
 2. Navigate to the project directory:
    ```sh
    cd /path/to/files/clone
