@@ -1,4 +1,12 @@
 <?php 
+function require_fields($fields=[]){
+	global $data;
+	foreach($fields as $f){
+		if(!isset($data[$f])){
+			die(json_encode(["error"=>"$f is required"]));
+		}
+	}
+}
 function method_caller(){
 	global $allow_urls;
 	if($_ENV['URI_PREFIX']!=""){
@@ -170,7 +178,7 @@ class HandleQuery{
 					$this->parameters[":$key"] = $value;
 			    }
 			}
-			$this->values = rtrim(",", $this->values);
+			// $this->values = rtrim(",", $this->values);
 			// die($r);
 		}else{
 			die(json_encode(["error"=>"Specify columns"]));
@@ -262,27 +270,17 @@ class HandleQuery{
 	}
 
 	function execute(){
-		// die(json_encode(["stmt"=>$this->stmt, "count1"=>substr_count($this->stmt, "="), "params"=>$this->parameters, "count2"=>count($this->parameters), "error"=>""]));
+		// die(json_encode(["stmt"=>$this->stmt, "count1"=>substr_count($this->stmt, "="), "params"=>$this->parameters, "count2"=>count($this->parameters), "newa"=>"query(".$this->stmt."),".$this->parameters]));
 		try{
-			$d = "INSERT INTO user_farms SET product_name=:product_name,user_code=:user_code,farm_name=:farm_name,location_name=:location_name,acrage=:acrage,quantity=:quantity,image=:image,farm_latd=:farm_latd,farm_longd=:farm_longd,added_by=:added_by;";
-			$opd = [
-				":product_name"=> 34,
-				":user_code"=>"KEB410018",
-				":farm_name"=>"organic week ",
-				":location_name"=>"kampala",
-				":acrage"=>"6 to 10",
-				":quantity"=>"0",
-				":image"=>"uploads_images/65f0_organic week .png",
-				":farm_latd"=>"0.3289792",
-				":farm_longd"=>"32.6076164",
-				":added_by"=>"KEB41218"
-			];
 			$this->result =query($this->stmt, $this->parameters);
 			// $this->result = query($d, $opd);
 			return $this;
 		}catch(PDOException $m){
 			echo json_encode([
 				"error"=>$m->getMessage(),
+				"stmt"=>$this->stmt,
+				// "line"=>  $m->getLine(),
+				// "trace"=> $m->getTraceAsString()
 			]);
 			exit;
 		}

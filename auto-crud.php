@@ -102,7 +102,9 @@ function $tab(){
 		break;
 
 		case 'POST':
-			\$lastId = \$queryMake->table(\$table)->insert(\$data)->execute()->lastInsertedId();
+			// require_fields(['column_name1', 'column_name2', 'column_name...']);
+			\$insert_into_table = \$queryMake->table(\$table)->insert(\$data)->execute(); 
+			\$lastId = \$insert_into_table->lastInsertedId();
 			\$response['data'] = \$queryMake->table(\$table)->select()->where(['id'=>\$lastId])->execute()->getOne();
 			\$response['message'] = \$msg.\$message['created'];
 			// queryHandler(type:'post', table:\$table, data:\$data);
