@@ -236,6 +236,7 @@ class HandleQuery{
 	public function where($arr=[]){
 		$params = [];
 		$cond_ = " ";
+		$this->parameters = [];
 		if(count($arr)>0){
 			foreach ($arr as $key => $value) {
 				if (is_string($key)) {
@@ -279,6 +280,7 @@ class HandleQuery{
 			echo json_encode([
 				"error"=>$m->getMessage(),
 				"stmt"=>$this->stmt,
+				"params"=>$this->parameters,
 				// "line"=>  $m->getLine(),
 				// "trace"=> $m->getTraceAsString()
 			]);
