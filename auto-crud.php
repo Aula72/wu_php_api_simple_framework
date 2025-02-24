@@ -105,7 +105,11 @@ function $tab(){
 			// require_fields(['column_name1', 'column_name2', 'column_name...']);
 			\$insert_into_table = \$queryMake->table(\$table)->insert(\$data)->execute(); 
 			\$lastId = \$insert_into_table->lastInsertedId();
-			\$response['data'] = \$queryMake->table(\$table)->select()->where(['id'=>\$lastId])->execute()->getOne();
+			\$response['last_id'] = \$lastId;
+			\$q = query(\"SHOW KEYS FROM \$table WHERE Key_name = 'PRIMARY';\");
+			\$h = \$q->fetch(PDO::FETCH_ASSOC);
+			\$_GET[\$h['Column_name']]=\$lastId;
+			\$response['data'] = \$queryMake->table(\$table)->select()->where(\$_GET)->execute()->get()[0];
 			\$response['message'] = \$msg.\$message['created'];
 			// queryHandler(type:'post', table:\$table, data:\$data);
 		break;
