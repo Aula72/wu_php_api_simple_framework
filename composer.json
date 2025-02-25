@@ -1,6 +1,9 @@
 {
     "name": "aula72/quick_restful_api_framework",
     "description": "Create any CRUD in seconds, this lightweight framework focuses on fast delievery of robust and reliable APIs. In software development security is always a base required this framework provides basic security with a room for improvement.",
+    "replace": {
+        "aula72/malaika": "*"
+    },
     "type": "project",
     "license": "MIT",
     "authors": [
