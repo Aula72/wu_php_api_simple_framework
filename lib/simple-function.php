@@ -132,6 +132,33 @@ function create_plural_or_singular($t){
 
 	return $t;
 }
+
+function get_primary_key($table){
+	global $conn;
+	if($_ENV['DB_TYPE']=='postgres'){
+		$sql = "
+			SELECT kcu.column_name
+			FROM information_schema.table_constraints tc
+			JOIN information_schema.key_column_usage kcu
+			ON tc.constraint_name = kcu.constraint_name
+			AND tc.table_schema = kcu.table_schema
+			WHERE tc.constraint_type = 'PRIMARY KEY'
+			AND tc.table_name = :table
+			";
+
+		$stmt = $conn->prepare($sql);
+		$stmt->execute([':table' => $table]);
+
+		$primaryKeys = $stmt->fetchAll(PDO::FETCH_COLUMN);
+		$col =  implode(', ', $primaryKeys);
+	}else{
+		$q = query("SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY';");
+		$h = $q->fetch(PDO::FETCH_ASSOC);
+		$col = $h['column_name'];			
+	}
+
+	return $col;
+}
 // echo generateRandomWord(8);
 
 class HandleQuery{
@@ -143,6 +170,7 @@ class HandleQuery{
 	protected $order_by = " ASC";
 	protected $per_page = 10;
 	protected $current_page = 1;
+	protected $columns = '';
 	protected $values = '';
 	public function __construct(){
 		// query($this->stmt, $this->parameters);
@@ -170,10 +198,12 @@ class HandleQuery{
 	public function insert($data = []){
 		$params_ = [];
 		$r = "";
+		$l = "";
 		if(!empty($data)){
 			foreach ($data as $key => $value) {
 			    if (is_string($key)) {
-					$r .= "$key=:$key,";
+					$r .= "$key,";
+					$l .= ":$key,";
 			    	// $this->values .="$r=:$r,";
 					$this->parameters[":$key"] = $value;
 			    }
@@ -184,10 +214,11 @@ class HandleQuery{
 			die(json_encode(["error"=>"Specify columns"]));
 		}
 		// $this->parameters = $params_;
-		$this->values = rtrim($r, ",");
+		$this->values = rtrim($l, ",");
+		$this->columns = rtrim($r, ",");
 		// die(json_encode($this->parameters));
 		// die(json_encode($this->values));
-		$this->stmt .= "INSERT INTO $this->table_name SET $this->values;";
+		$this->stmt .= "INSERT INTO $this->table_name($this->columns)VALUES($this->values);";
 		// die($values);
 		return $this;
 	}
@@ -198,16 +229,20 @@ class HandleQuery{
 			    if (is_string($key)) {
 			    	$values .= "$key=:$key,";
 					$pa[":$key"]=$value;
+				
 					// array_push($this->parameters, $pa);
 			    }
 			}
-			$newString = substr($values, 0, -1);
+			$newString = rtrim($values, ",");
 			$values = $newString;
 		}else{
 			die(json_encode(["error"=>"Specify columns"]));
 		}
+		foreach($_GET as $t => $value){
+			$pa[":$t"]=$value;
+		}
 		$this->parameters = $pa;
-		// die(var_dump($this->parameters));
+		// die(json_encode($this->parameters));
 
 		$this->stmt .= "UPDATE $this->table_name SET $values $this->conditions";
 		// var_dump($this);
@@ -236,7 +271,7 @@ class HandleQuery{
 	public function where($arr=[]){
 		$params = [];
 		$cond_ = " ";
-		$this->parameters = [];
+		// $this->parameters = [];
 		if(count($arr)>0){
 			foreach ($arr as $key => $value) {
 				if (is_string($key)) {

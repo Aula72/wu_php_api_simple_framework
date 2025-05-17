@@ -11,14 +11,32 @@ include_once "lib/simple-function.php";
 function create_function(){
 	global $conn, $dbname;
 
-	$tables = $conn->prepare("SELECT TABLE_NAME 
+	$arr = [];
+
+	if($_ENV['DB_TYPE']=='postgres'){
+		$tab_ = $conn->query("
+        SELECT tablename
+        FROM pg_catalog.pg_tables
+        WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'
+    ");
+		// $tab_->execute();
+		// echo json_encode($tab_->fetchAll(PDO::FETCH_COLUMN));
+		foreach($tab_->fetchAll(PDO::FETCH_COLUMN) as $tr){
+			$arr[] = $tr;
+		}
+		// die(json_encode($arr));
+	}else{
+		$tables = $conn->prepare("SELECT TABLE_NAME 
 		FROM INFORMATION_SCHEMA.TABLES 
 		WHERE TABLE_SCHEMA = '$dbname';");
-	$tables->execute();
-	$arr = [];
-	foreach($tables->fetchAll(PDO::FETCH_ASSOC) as $f){
-		$arr[] = $f["TABLE_NAME"];
+		$tables->execute();
+		foreach($tables->fetchAll(PDO::FETCH_ASSOC) as $f){
+			$arr[] = $f["TABLE_NAME"];
+		}
 	}
+	
+	
+	// $arr = ["users"];
 	
 	$text = "<?php 
 	\$queryMake = new HandleQuery();
@@ -47,7 +65,7 @@ function create_function(){
 		}
 		
 	}
-	
+	// die($text);
 	header("content-type: text/html");
 	echo "<pre>\<?\php".$text."</pre>";
 	
@@ -106,9 +124,7 @@ function $tab(){
 			\$insert_into_table = \$queryMake->table(\$table)->insert(\$data)->execute(); 
 			\$lastId = \$insert_into_table->lastInsertedId();
 			\$response['last_id'] = \$lastId;
-			\$q = query(\"SHOW KEYS FROM \$table WHERE Key_name = 'PRIMARY';\");
-			\$h = \$q->fetch(PDO::FETCH_ASSOC);
-			\$_GET[\$h['Column_name']]=\$lastId;
+			\$_GET[get_primary_key(\$table)] = \$lastId;
 			\$response['data'] = \$queryMake->table(\$table)->select()->where(\$_GET)->execute()->get()[0];
 			\$response['message'] = \$msg.\$message['created'];
 			// queryHandler(type:'post', table:\$table, data:\$data);
@@ -132,7 +148,7 @@ function $tab(){
 		break;
 
 		default:
-			\$respons['error'] = \$message['wrong_method'];
+			\$response['error'] = \$message['wrong_method'];
 		break;
 	}
 	echo json_encode(\$response);
