@@ -1,4 +1,5 @@
-./vendor/
+/vendor/
+/test-api-framework/
 .env
 .htaccess
 v1.php
