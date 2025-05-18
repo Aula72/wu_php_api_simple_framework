@@ -11,12 +11,15 @@ This is a lightweight PHP RESTful framework designed to simplify API development
 - Authentication support (session-based)
 - CORS support
 
+## Supported Database systems
+- MySQL
+- Postgres 
+- MongoDB
+- Oracle
+
 ## Installation
 
-### Using Composer
-```sh
-composer require your-namespace/your-framework
-```
+
 
 ### Manual Installation
 1. Clone the repository:
@@ -24,7 +27,7 @@ composer require your-namespace/your-framework
    git clone https://github.com/Aula72/wu_php_api_simple_framework.git
    ```
    or 
-   `composer create-project aula72/quick_restful_api_framework`
+   `composer create-project aula72/malaika`
 2. Navigate to the project directory:
    ```sh
    cd /path/to/files/clone
@@ -39,7 +42,7 @@ composer require your-namespace/your-framework
 
 
 ## Configuration
-Rename `.env.example` to `.env` for database and environment settings. Edit the `.env` file for configurations including `DBNAME` and `DBPASSW`.
+Rename `.env.example` to `.env` for database and environment settings. Edit the `.env` file for configurations including`DB_TYPE` to choose a database type you're are intending to use forexample `DB_TYPE=postgres` for Postgres, the default database system is MySQL; set in `.env` the database `DBNAME` and the user password `DBPASSW` and other additionals database connection settings.
 
 Create tables in your database.
 
@@ -67,6 +70,21 @@ Now you can do CRUD on any table in your database by using the following endpoin
 - `POST /<table-name>`
 - `PUT /<table-name>?<column-name>=67`
 - `DELETE /<table-name>?<column-name>=67`
+
+Forexample if we have a database that has tables/models such as `products`, `categories` and `product_categories` then our endpoints will be as follows
+
+- `GET /products`
+- `GET /products?id=3`
+- `POST /products`
+- `PUT /products?id=2`
+- `DELETE /products?id=5`
+- so forth
+
+If the table `products` has columns like `id`, `name`, `category_id`, `unit_price` and `quantity` then the post request will be in the following format
+
+`{"name":"Ice Cream", "category_id":3, "unit_price":5.90, "quantity": 89}`
+
+
 
 
 
